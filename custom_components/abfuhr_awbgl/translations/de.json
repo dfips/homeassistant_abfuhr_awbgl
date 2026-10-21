@@ -1,0 +1,78 @@
+{
+  "config": {
+    "flow_title": "AWB Bergisch Gladbach Abfuhr",
+    "step": {
+      "user": {
+        "title": "AWB Bergisch Gladbach",
+        "description": "Gib die Straße ein, für die die Abfuhrtermine geladen werden sollen.",
+        "data": {
+          "street": "Straße",
+          "plz": "PLZ (optional)"
+        }
+      },
+      "ort": {
+        "title": "Ort auswählen",
+        "description": "Wähle den Ort für den Abfuhrkalender.",
+        "data": {
+          "ort_id": "Ort"
+        }
+      },
+      "street_select": {
+        "title": "Straße auswählen",
+        "description": "Die Suche hat mehrere Straßen gefunden. Bitte wähle eine aus.",
+        "data": {
+          "street_id": "Straße"
+        }
+      },
+      "settings": {
+        "title": "Abfuhr-Einstellungen",
+        "description": "Wähle die Restmüll-Variante und weitere Abfallarten. Bei „Alle Restmüll-Varianten“ werden die Termine aller Varianten angezeigt; pro Haushalt gilt nur eine Variante.",
+        "data": {
+          "restmuell": "Restmüll-Variante",
+          "extra_fraktionen": "Weitere Abfallarten",
+          "scan_interval": "Aktualisierungsintervall"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Die AWB-Daten konnten nicht geladen werden. Bitte später erneut versuchen.",
+      "invalid_restmuell": "Die gewählte Restmüll-Variante ist ungültig.",
+      "no_orte": "Es wurden keine Orte gefunden.",
+      "no_streets": "Es wurden keine Straßen gefunden.",
+      "street_not_found": "Keine passende Straße gefunden. Bitte die Schreibweise prüfen.",
+      "street_required": "Bitte eine Straße eingeben.",
+      "unknown": "Unerwarteter Fehler."
+    },
+    "abort": {
+      "already_configured": "Diese Straße ist bereits eingerichtet.",
+      "no_orte": "Es wurden keine Orte gefunden.",
+      "no_streets": "Es wurden keine Straßen gefunden.",
+      "street_not_found": "Die gewählte Straße wurde nicht gefunden."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Abfuhr-Einstellungen",
+        "description": "Ändere Restmüll-Variante, weitere Abfallarten und das Aktualisierungsintervall.",
+        "data": {
+          "restmuell": "Restmüll-Variante",
+          "extra_fraktionen": "Weitere Abfallarten",
+          "scan_interval": "Aktualisierungsintervall"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "next_collection": {
+        "name": "Nächste Abfuhr"
+      }
+    },
+    "calendar": {
+      "collection": {
+        "name": "Abfuhrtermine"
+      }
+    }
+  }
+}

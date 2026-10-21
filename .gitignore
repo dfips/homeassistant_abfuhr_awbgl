@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# Secrets and local configuration
+.env
+.env.*
+secrets.yaml
+secrets.yml
+.storage/
+.cloud/
+home-assistant.log*
+*.db
+*.sqlite
+*.sqlite3
+*.log
+*.pem
+*.key
+id_rsa
+id_ed25519
+known_hosts
+
+# Editors and operating systems
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db

@@ -1,0 +1,12 @@
+{
+  "domain": "abfuhr_awbgl",
+  "name": "AWB Bergisch Gladbach Abfuhr",
+  "codeowners": ["@dfips"],
+  "config_flow": true,
+  "documentation": "https://github.com/dfips/homeassistant_abfuhr_awbgl",
+  "integration_type": "service",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/dfips/homeassistant_abfuhr_awbgl/issues",
+  "requirements": [],
+  "version": "0.1.0"
+}

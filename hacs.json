@@ -1,0 +1,6 @@
+{
+  "name": "AWB Bergisch Gladbach Abfuhr",
+  "render_readme": true,
+  "homeassistant": "2026.10.0",
+  "zip_release": false
+}

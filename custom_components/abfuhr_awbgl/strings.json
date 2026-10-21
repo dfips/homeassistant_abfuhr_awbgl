@@ -1,0 +1,78 @@
+{
+  "config": {
+    "flow_title": "AWB Bergisch Gladbach Abfuhr",
+    "step": {
+      "user": {
+        "title": "AWB Bergisch Gladbach",
+        "description": "Enter the street for which collection dates should be loaded.",
+        "data": {
+          "street": "Street",
+          "plz": "Postal code (optional)"
+        }
+      },
+      "ort": {
+        "title": "Select municipality",
+        "description": "Select the municipality for the collection calendar.",
+        "data": {
+          "ort_id": "Municipality"
+        }
+      },
+      "street_select": {
+        "title": "Select street",
+        "description": "The search returned multiple streets. Please choose one.",
+        "data": {
+          "street_id": "Street"
+        }
+      },
+      "settings": {
+        "title": "Collection settings",
+        "description": "Choose the residual waste variant and additional waste types. If all residual waste variants are selected, the dates of all variants are shown; only one variant applies per household.",
+        "data": {
+          "restmuell": "Residual waste variant",
+          "extra_fraktionen": "Additional waste types",
+          "scan_interval": "Update interval"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "The AWB data could not be loaded. Please try again later.",
+      "invalid_restmuell": "The selected residual waste variant is invalid.",
+      "no_orte": "No municipalities were found.",
+      "no_streets": "No streets were found.",
+      "street_not_found": "No matching street was found. Please check the spelling.",
+      "street_required": "Please enter a street.",
+      "unknown": "Unexpected error."
+    },
+    "abort": {
+      "already_configured": "This street is already configured.",
+      "no_orte": "No municipalities were found.",
+      "no_streets": "No streets were found.",
+      "street_not_found": "The selected street was not found."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Collection settings",
+        "description": "Change the residual waste variant, additional waste types and update interval.",
+        "data": {
+          "restmuell": "Residual waste variant",
+          "extra_fraktionen": "Additional waste types",
+          "scan_interval": "Update interval"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "next_collection": {
+        "name": "Next collection"
+      }
+    },
+    "calendar": {
+      "collection": {
+        "name": "Collection dates"
+      }
+    }
+  }
+}
