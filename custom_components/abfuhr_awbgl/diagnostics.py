@@ -7,7 +7,7 @@ from typing import Any
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 
-from .const import CONF_ORTSTEIL, CONF_PLZ, CONF_STREET_NAME
+from .const import CONF_ORTSTEIL, CONF_PLZ, CONF_STREET_NAME, CONF_STREET_STATIC_ID
 
 
 async def async_get_config_entry_diagnostics(
@@ -19,7 +19,12 @@ async def async_get_config_entry_diagnostics(
     data = coordinator.data
 
     redacted_data = dict(entry.data)
-    for key in (CONF_STREET_NAME, CONF_PLZ, CONF_ORTSTEIL):
+    for key in (
+        CONF_STREET_NAME,
+        CONF_PLZ,
+        CONF_ORTSTEIL,
+        CONF_STREET_STATIC_ID,
+    ):
         if key in redacted_data:
             redacted_data[key] = "**REDACTED**"
 

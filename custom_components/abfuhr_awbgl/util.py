@@ -7,7 +7,7 @@ from datetime import date
 import difflib
 import re
 
-from .api import Strasse
+from .api import AbfallApiClient, Ort, Strasse
 from .const import (
     RESTMUELL_IDS,
     RESTMUELL_STANDARD,
@@ -97,6 +97,98 @@ def format_street_label(street: Strasse) -> str:
     if street.ortsteil:
         parts.append(f"Ortsteil {street.ortsteil}")
     return " · ".join(parts)
+
+
+def _select_ort(orte: list[Ort], ort_name: str | None) -> Ort | None:
+    """Select the municipality matching a stored name."""
+    if ort_name:
+        normalized = normalize_street_name(ort_name)
+        matches = [ort for ort in orte if normalize_street_name(ort.name) == normalized]
+        if matches:
+            return matches[0]
+    if len(orte) == 1:
+        return orte[0]
+    return None
+
+
+def resolve_street_from_list(
+    streets: Iterable[Strasse],
+    *,
+    street_name: str,
+    plz: str | None = None,
+    ortsteil: str | None = None,
+    static_id: str | None = None,
+) -> Strasse | None:
+    """Resolve a stored street against the current street list.
+
+    The AWB API is periodically re-imported and assigns new numeric IDs. The
+    stable parts of an entry are the street name, postal code, district and,
+    when available, the API's opaque static ID.
+    """
+    street_list = list(streets)
+
+    candidates: list[Strasse] = []
+    if static_id:
+        candidates = [street for street in street_list if street.static_id == static_id]
+    if not candidates:
+        normalized = normalize_street_name(street_name)
+        candidates = [
+            street
+            for street in street_list
+            if normalize_street_name(street.name) == normalized
+        ]
+    if not candidates:
+        fuzzy = find_street_matches(street_list, street_name)
+        if len(fuzzy) == 1:
+            candidates = fuzzy
+    if not candidates:
+        return None
+
+    if plz and plz.strip():
+        plz_matches = [
+            street for street in candidates if (street.plz or "").strip() == plz.strip()
+        ]
+        if plz_matches:
+            candidates = plz_matches
+
+    if ortsteil and ortsteil.strip():
+        ortsteil_matches = [
+            street
+            for street in candidates
+            if (street.ortsteil or "").strip() == ortsteil.strip()
+        ]
+        if ortsteil_matches:
+            candidates = ortsteil_matches
+
+    return candidates[0]
+
+
+async def async_resolve_street(
+    client: AbfallApiClient,
+    *,
+    ort_name: str | None,
+    street_name: str,
+    plz: str | None,
+    ortsteil: str | None,
+    static_id: str | None,
+) -> tuple[Ort, Strasse] | None:
+    """Fetch the current municipality and street for a stored config entry."""
+    orte = await client.async_get_orte()
+    ort = _select_ort(orte, ort_name)
+    if ort is None:
+        return None
+
+    streets = await client.async_get_strassen(ort.id)
+    street = resolve_street_from_list(
+        streets,
+        street_name=street_name,
+        plz=plz,
+        ortsteil=ortsteil,
+        static_id=static_id,
+    )
+    if street is None:
+        return None
+    return ort, street
 
 
 def selected_fraction_ids(

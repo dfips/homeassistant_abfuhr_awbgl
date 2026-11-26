@@ -189,6 +189,15 @@ Umlaute, `ß`/`ss` und `Straße`/`Str.` an.
 Die AWB hat die Daten noch nicht veröffentlicht. Die Integration aktualisiert
 sich automatisch, sobald die Termine verfügbar sind.
 
+**Nach einer Datenaktualisierung der AWB keine Termine**
+
+Die AWB vergibt bei einem Daten-Neuimport teilweise neue interne IDs für Ort
+und Straße. Ab Version 0.1.1 gleicht die Integration die gespeicherte Straße
+beim Start automatisch über Name, PLZ und Ortsteil ab und aktualisiert die
+IDs. Nach dem Update der Integration Home Assistant neu starten. Bleiben die
+Sensoren danach leer, die Integration unter **Einstellungen → Geräte &
+Dienste** einmal neu laden. Die Konfiguration muss nicht neu angelegt werden.
+
 **Verbindungsfehler**
 
 Die API ist eventuell vorübergehend nicht erreichbar. Die Integration

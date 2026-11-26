@@ -9,19 +9,23 @@ import logging
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.typing import ConfigType
 
-from .api import AbfallApiClient, Strasse
+from .api import AbfallApiClient, AbfallApiError, Strasse
 from .const import (
     CONF_EXTRA_FRAKTIONEN,
+    CONF_ORT_ID,
+    CONF_ORT_NAME,
     CONF_ORTSTEIL,
     CONF_PLZ,
     CONF_RESTMUELL,
     CONF_SCAN_INTERVAL,
     CONF_STREET_ID,
     CONF_STREET_NAME,
+    CONF_STREET_STATIC_ID,
     DEFAULT_EXTRA_FRAKTIONEN,
     DEFAULT_SCAN_INTERVAL_HOURS,
     DOMAIN,
@@ -30,7 +34,7 @@ from .const import (
     RESTMUELL_STANDARD,
 )
 from .coordinator import AbfuhrCoordinator
-from .util import selected_fraction_ids
+from .util import async_resolve_street, selected_fraction_ids
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -59,14 +63,64 @@ async def async_setup_entry(hass: HomeAssistant, entry: AbfuhrConfigEntry) -> bo
     """Set up AWB Bergisch Gladbach from a config entry."""
     settings = {**entry.data, **entry.options}
 
-    street = Strasse(
-        id=int(entry.data[CONF_STREET_ID]),
-        name=str(entry.data[CONF_STREET_NAME]),
-        plz=entry.data.get(CONF_PLZ),
-        ortsteil=entry.data.get(CONF_ORTSTEIL),
-        hausnummern=(),
-        gueltig_bis=None,
-    )
+    client = AbfallApiClient(async_get_clientsession(hass))
+
+    try:
+        resolved = await async_resolve_street(
+            client,
+            ort_name=entry.data.get(CONF_ORT_NAME),
+            street_name=str(entry.data.get(CONF_STREET_NAME, "")),
+            plz=entry.data.get(CONF_PLZ),
+            ortsteil=entry.data.get(CONF_ORTSTEIL),
+            static_id=entry.data.get(CONF_STREET_STATIC_ID),
+        )
+    except AbfallApiError as err:
+        raise ConfigEntryNotReady("Could not load the current AWB street list") from err
+
+    if resolved is None:
+        raise ConfigEntryNotReady(
+            "Could not resolve the configured street in the current AWB data"
+        )
+
+    ort, street = resolved
+    new_data = {
+        **entry.data,
+        CONF_ORT_ID: ort.id,
+        CONF_ORT_NAME: ort.name,
+        CONF_STREET_ID: street.id,
+        CONF_STREET_NAME: street.name,
+        CONF_PLZ: street.plz,
+        CONF_ORTSTEIL: street.ortsteil,
+        CONF_STREET_STATIC_ID: street.static_id,
+    }
+    new_title = street.name
+    if street.plz:
+        new_title = f"{new_title} ({street.plz})"
+
+    updates: dict[str, object] = {}
+    if new_data != dict(entry.data):
+        updates["data"] = new_data
+    if new_title != entry.title:
+        updates["title"] = new_title
+    new_unique_id = f"{DOMAIN}_{street.id}"
+    if (
+        entry.unique_id != new_unique_id
+        and hass.config_entries.async_entry_for_domain_unique_id(
+            DOMAIN,
+            new_unique_id,
+        )
+        is None
+    ):
+        updates["unique_id"] = new_unique_id
+    if updates:
+        old_street_id = entry.data.get(CONF_STREET_ID)
+        hass.config_entries.async_update_entry(entry, **updates)
+        _LOGGER.info(
+            "Updated AWB IDs for config entry %s (street ID %s -> %s)",
+            entry.entry_id,
+            old_street_id,
+            street.id,
+        )
 
     extra_fraktionen = tuple(
         int(value)
@@ -86,7 +140,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: AbfuhrConfigEntry) -> bo
         min(MAX_SCAN_INTERVAL_HOURS, interval_hours),
     )
 
-    client = AbfallApiClient(async_get_clientsession(hass))
     coordinator = AbfuhrCoordinator(
         hass,
         entry,

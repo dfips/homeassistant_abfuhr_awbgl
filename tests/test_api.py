@@ -20,6 +20,7 @@ from custom_components.abfuhr_awbgl.const import (
 from custom_components.abfuhr_awbgl.util import (
     find_street_matches,
     normalize_street_name,
+    resolve_street_from_list,
     selected_fraction_ids,
 )
 
@@ -29,6 +30,7 @@ def _street(
     name: str,
     plz: str = "12345",
     ortsteil: str = "1a",
+    static_id: str | None = None,
 ) -> Strasse:
     return Strasse(
         id=street_id,
@@ -37,6 +39,7 @@ def _street(
         ortsteil=ortsteil,
         hausnummern=(),
         gueltig_bis=None,
+        static_id=static_id,
     )
 
 
@@ -101,6 +104,55 @@ def test_selected_fraction_ids_all_variants() -> None:
     assert selected_fraction_ids(RESTMUELL_ALLE, [3, 0, 3]) == (0, 1, 2, 3)
 
 
+def test_resolve_street_prefers_static_id() -> None:
+    """The opaque static ID wins even if the numeric ID changed."""
+    streets = [
+        _street(200, "Musterstraße", "12345", "1a", "new-static-id"),
+        _street(201, "Musterstraße", "12345", "1b", "other-static-id"),
+    ]
+    resolved = resolve_street_from_list(
+        streets,
+        street_name="Musterstraße",
+        plz="12345",
+        ortsteil="1a",
+        static_id="new-static-id",
+    )
+    assert resolved is not None
+    assert resolved.id == 200
+
+
+def test_resolve_street_by_name_after_reimport() -> None:
+    """A changed numeric street ID is resolved by name, PLZ and Ortsteil."""
+    streets = [
+        _street(287605, "Ackerstraße", "51427", "1a2"),
+        _street(287606, "Ackerstraße", "51429", "2b"),
+    ]
+    resolved = resolve_street_from_list(
+        streets,
+        street_name="Ackerstr.",
+        plz="51427",
+        ortsteil="1a2",
+        static_id=None,
+    )
+    assert resolved is not None
+    assert resolved.id == 287605
+
+
+def test_resolve_street_no_match() -> None:
+    """An unknown street is not silently mapped to a different one."""
+    streets = [_street(1, "Musterweg")]
+    assert (
+        resolve_street_from_list(
+            streets,
+            street_name="Unbekannt",
+            plz=None,
+            ortsteil=None,
+            static_id=None,
+        )
+        is None
+    )
+
+
 def test_parse_strasse() -> None:
     """Street payloads are parsed into typed objects."""
     street = _parse_strasse(
@@ -110,6 +162,7 @@ def test_parse_strasse() -> None:
             "plz": "12345",
             "ortsteilName": "1a",
             "gueltigBis": None,
+            "staticId": "synthetic-static-id",
             "hausNrList": [
                 {
                     "id": 200,
@@ -122,6 +175,7 @@ def test_parse_strasse() -> None:
     )
     assert street.id == 100
     assert street.name == "Musterstraße"
+    assert street.static_id == "synthetic-static-id"
     assert street.hausnummern[0].nr == "1"
 
 

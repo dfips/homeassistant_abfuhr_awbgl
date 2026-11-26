@@ -7,7 +7,7 @@ from typing import Final
 
 DOMAIN: Final = "abfuhr_awbgl"
 NAME: Final = "AWB Bergisch Gladbach Abfuhr"
-VERSION: Final = "0.1.0"
+VERSION: Final = "0.1.1"
 
 API_BASE_URL: Final = "https://aw-bgl2-abfallapp.regioit.de/abfall-app-aw-bgl2/rest"
 API_TIMEOUT_SECONDS: Final = 15
@@ -19,6 +19,7 @@ CONF_ORT_NAME: Final = "ort_name"
 CONF_STREET: Final = "street"
 CONF_STREET_ID: Final = "street_id"
 CONF_STREET_NAME: Final = "street_name"
+CONF_STREET_STATIC_ID: Final = "street_static_id"
 CONF_PLZ: Final = "plz"
 CONF_ORTSTEIL: Final = "ortsteil"
 CONF_RESTMUELL: Final = "restmuell"

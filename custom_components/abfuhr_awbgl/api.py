@@ -70,6 +70,7 @@ class Strasse:
     ortsteil: str | None
     hausnummern: tuple[Hausnummer, ...]
     gueltig_bis: str | None
+    static_id: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -167,6 +168,7 @@ def _parse_strasse(payload: Any) -> Strasse:
         ortsteil=_as_optional_str(payload.get("ortsteilName")),
         hausnummern=tuple(_parse_hausnummer(item) for item in hausnummern_payload),
         gueltig_bis=_as_optional_str(payload.get("gueltigBis")),
+        static_id=_as_optional_str(payload.get("staticId")),
     )
 
 

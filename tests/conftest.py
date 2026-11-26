@@ -73,6 +73,7 @@ class FakeAbfallApiClient:
         """Create deterministic test data relative to today."""
         self.today = dt_util.now().date()
         self.fail = False
+        self.orte = [Ort(id=1, name="Musterstadt")]
         self.street = Strasse(
             id=100,
             name="Musterstraße",
@@ -80,6 +81,7 @@ class FakeAbfallApiClient:
             ortsteil="1a",
             hausnummern=(),
             gueltig_bis=None,
+            static_id="c3RyYXNzZS0xMDA=",
         )
         self.duplicate_street = Strasse(
             id=102,
@@ -88,6 +90,7 @@ class FakeAbfallApiClient:
             ortsteil="1b",
             hausnummern=(),
             gueltig_bis=None,
+            static_id="c3RyYXNzZS0xMDI=",
         )
         self.streets = [
             self.street,
@@ -99,6 +102,7 @@ class FakeAbfallApiClient:
                 ortsteil="1a",
                 hausnummern=(),
                 gueltig_bis=None,
+                static_id="c3RyYXNzZS0xMDE=",
             ),
         ]
         self.fraktionen = [
@@ -128,7 +132,7 @@ class FakeAbfallApiClient:
         """Return one municipality."""
         if self.fail:
             raise AbfallApiConnectionError("down")
-        return [Ort(id=1, name="Musterstadt")]
+        return self.orte
 
     async def async_get_strassen(self, ort_id: int) -> list[Strasse]:
         """Return test streets."""

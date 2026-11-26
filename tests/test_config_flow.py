@@ -14,6 +14,7 @@ from custom_components.abfuhr_awbgl.const import (
     CONF_SCAN_INTERVAL,
     CONF_STREET,
     CONF_STREET_ID,
+    CONF_STREET_STATIC_ID,
     DOMAIN,
 )
 
@@ -50,6 +51,7 @@ async def test_user_flow_creates_entry(hass, fake_client) -> None:
     assert result["type"] is FlowResultType.CREATE_ENTRY
     assert result["title"] == "Musterstraße (12345)"
     assert result["data"][CONF_STREET_ID] == 100
+    assert result["data"][CONF_STREET_STATIC_ID] == "c3RyYXNzZS0xMDA="
     assert result["options"][CONF_RESTMUELL] == "standard"
     assert result["options"][CONF_EXTRA_FRAKTIONEN] == [3, 4, 5]
 

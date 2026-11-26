@@ -6,6 +6,7 @@ from custom_components.abfuhr_awbgl.const import (
     CONF_ORTSTEIL,
     CONF_PLZ,
     CONF_STREET_NAME,
+    CONF_STREET_STATIC_ID,
 )
 from custom_components.abfuhr_awbgl.diagnostics import (
     async_get_config_entry_diagnostics,
@@ -23,7 +24,9 @@ async def test_diagnostics_redacts_location(hass, fake_client, config_entry) -> 
     assert diagnostics["entry"]["data"][CONF_STREET_NAME] == "**REDACTED**"
     assert diagnostics["entry"]["data"][CONF_PLZ] == "**REDACTED**"
     assert diagnostics["entry"]["data"][CONF_ORTSTEIL] == "**REDACTED**"
+    assert diagnostics["entry"]["data"][CONF_STREET_STATIC_ID] == "**REDACTED**"
     assert diagnostics["coordinator"]["termine_count"] > 0
     assert diagnostics["coordinator"]["next_dates"]
     assert "Musterstraße" not in str(diagnostics)
     assert "12345" not in str(diagnostics)
+    assert "c3RyYXNzZS0xMDA=" not in str(diagnostics)
